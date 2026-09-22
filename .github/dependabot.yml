@@ -8,12 +8,12 @@ updates:
       github-actions:
         patterns: ['*']
 
-  # Raises [compat] bounds in Project.toml and test/Project.toml when new
-  # dependency releases fall outside them.
+  # Raises [compat] bounds in Project.toml when new dependency releases fall
+  # outside them. test/Project.toml is deliberately excluded: Dependabot would pin
+  # test deps to their latest releases, which older Julia versions in the CI
+  # matrix cannot resolve.
   - package-ecosystem: julia
-    directories:
-      - /
-      - /test
+    directory: /
     schedule:
       interval: weekly
     groups:
