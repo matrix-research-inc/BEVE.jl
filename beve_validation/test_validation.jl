@@ -1,6 +1,6 @@
 using Pkg
 Pkg.activate("..")
-using BEVE
+using BeveFormat
 using Test
 
 # Define structures matching C++ types

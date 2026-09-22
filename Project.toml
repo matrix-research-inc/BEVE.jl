@@ -1,7 +1,7 @@
-name = "BEVE"
-uuid = "3b80d964-188b-4b7e-ad00-66244565238b"
+name = "BeveFormat"
+uuid = "7708a389-c994-43cc-8329-c76d993c33c0"
 authors = ["Stephen Berry <stephenberry.developer@gmail.com>"]
-version = "2.7.2"
+version = "3.0.0"
 
 [deps]
 StructUtils = "ec057cc2-7a8d-4b58-b3b3-92acb9f63b42"

@@ -1,8 +1,8 @@
 using Test
-using BEVE
+using BeveFormat
 using StructUtils
 
-@testset "BEVE.jl" begin
+@testset "BeveFormat.jl" begin
     @testset "File Helpers" begin
         sample = Dict("message" => "hello", "values" => [1, 2, 3])
         struct FilePerson
@@ -29,8 +29,8 @@ using StructUtils
             @test read_beve_file(matrix_path) == matrix
 
             preserved = read_beve_file(matrix_path; preserve_matrices = true)
-            @test preserved isa BEVE.BeveMatrix{Float32}
-            @test preserved.layout == BEVE.LayoutLeft
+            @test preserved isa BeveFormat.BeveMatrix{Float32}
+            @test preserved.layout == BeveFormat.LayoutLeft
             @test preserved.extents == [2, 2]
             @test preserved.data == vec(matrix)
 
@@ -39,15 +39,15 @@ using StructUtils
             write_beve_file(person_path, person)
             @test deser_beve_file(FilePerson, person_path) == person
 
-            matrix_raw = deser_beve_file(BEVE.BeveMatrix{Float32}, matrix_path; preserve_matrices = true)
-            @test matrix_raw isa BEVE.BeveMatrix{Float32}
+            matrix_raw = deser_beve_file(BeveFormat.BeveMatrix{Float32}, matrix_path; preserve_matrices = true)
+            @test matrix_raw isa BeveFormat.BeveMatrix{Float32}
             @test matrix_raw.layout == preserved.layout
             @test matrix_raw.extents == preserved.extents
             @test matrix_raw.data == preserved.data
 
             dict_path = joinpath(tmp, "missing.beve")
             write(dict_path, to_beve(Dict("a" => 1)))
-            @test_throws BEVE.BeveError deser_beve_file(MissingField, dict_path; error_on_missing_fields = true)
+            @test_throws BeveFormat.BeveError deser_beve_file(MissingField, dict_path; error_on_missing_fields = true)
     end
     end
 
@@ -106,8 +106,8 @@ using StructUtils
             buffer = IOBuffer()
             compressed_matrix = to_beve_zstd(matrix; buffer = buffer, level = 7)
             restored = from_beve_zstd(compressed_matrix; preserve_matrices = true)
-            @test restored isa BEVE.BeveMatrix{Float32}
-            @test restored.layout == BEVE.LayoutLeft
+            @test restored isa BeveFormat.BeveMatrix{Float32}
+            @test restored.layout == BeveFormat.LayoutLeft
             @test restored.extents == [2, 2]
             @test restored.data == vec(matrix)
 
@@ -135,7 +135,7 @@ using StructUtils
                 person_path = joinpath(tmp, "person.beve.zst")
                 write_beve_zstd_file(person_path, person)
                 @test deser_beve_zstd_file(ZstdPerson, person_path) == person
-                @test deser_beve_zstd_file(BEVE.BeveMatrix{Float32}, matrix_path;
+                @test deser_beve_zstd_file(BeveFormat.BeveMatrix{Float32}, matrix_path;
                                            preserve_matrices = true).data == restored.data
             end
         end
@@ -205,13 +205,13 @@ using StructUtils
             @test parsed == matrix
 
             raw = from_beve(bytes; preserve_matrices = true)
-            @test raw isa BEVE.BeveMatrix
-            @test raw.layout == BEVE.LayoutLeft
+            @test raw isa BeveFormat.BeveMatrix
+            @test raw.layout == BeveFormat.LayoutLeft
             @test raw.extents == [2, 3]
             @test raw.data == vec(matrix)
 
-            raw_again = deser_beve(BEVE.BeveMatrix{Float32}, bytes; preserve_matrices = true)
-            @test raw_again isa BEVE.BeveMatrix{Float32}
+            raw_again = deser_beve(BeveFormat.BeveMatrix{Float32}, bytes; preserve_matrices = true)
+            @test raw_again isa BeveFormat.BeveMatrix{Float32}
             @test raw_again.data == vec(matrix)
         end
 
@@ -230,7 +230,7 @@ using StructUtils
 
         @testset "Row-major roundtrip" begin
             expected = Float64[1 2 3; 4 5 6]
-            row_major = BEVE.BeveMatrix(BEVE.LayoutRight, [2, 3], Float64[1, 2, 3, 4, 5, 6])
+            row_major = BeveFormat.BeveMatrix(BeveFormat.LayoutRight, [2, 3], Float64[1, 2, 3, 4, 5, 6])
             parsed_row = from_beve(to_beve(row_major))
             @test parsed_row isa Matrix{Float64}
             @test parsed_row == expected
@@ -244,7 +244,7 @@ using StructUtils
             @test parsed_complex == complex_matrix
 
             raw_complex = from_beve(to_beve(complex_matrix); preserve_matrices = true)
-            @test raw_complex isa BEVE.BeveMatrix{ComplexF64}
+            @test raw_complex isa BeveFormat.BeveMatrix{ComplexF64}
             @test raw_complex.data == vec(complex_matrix)
         end
 
@@ -287,9 +287,9 @@ using StructUtils
         end
 
         @testset "Higher-dimensional remains raw" begin
-            tensor = BEVE.BeveMatrix(BEVE.LayoutLeft, [2, 2, 2], Float32[1, 2, 3, 4, 5, 6, 7, 8])
+            tensor = BeveFormat.BeveMatrix(BeveFormat.LayoutLeft, [2, 2, 2], Float32[1, 2, 3, 4, 5, 6, 7, 8])
             parsed_tensor = from_beve(to_beve(tensor))
-            @test parsed_tensor isa BEVE.BeveMatrix
+            @test parsed_tensor isa BeveFormat.BeveMatrix
             @test parsed_tensor.extents == [2, 2, 2]
         end
     end
@@ -359,9 +359,9 @@ using StructUtils
             token::Union{String, Nothing} = nothing
         end
 
-        BEVE.@skip Credentials password
+        BeveFormat.@skip Credentials password
 
-        function BEVE.skip(::Type{Credentials}, ::Val{:token}, value)
+        function BeveFormat.skip(::Type{Credentials}, ::Val{:token}, value)
             return value === nothing
         end
 
@@ -379,7 +379,7 @@ using StructUtils
         @test reconstructed_credentials.password == ""
         @test reconstructed_credentials.token == "abc123"
 
-        @test_throws BEVE.BeveError deser_beve(Credentials, beve_credentials; error_on_missing_fields = true)
+        @test_throws BeveFormat.BeveError deser_beve(Credentials, beve_credentials; error_on_missing_fields = true)
 
         credentials_without_token = Credentials("bob", "hidden", nothing)
         parsed_without_token = from_beve(to_beve(credentials_without_token))
@@ -395,7 +395,7 @@ using StructUtils
         @test roundtrip_without_token.username == "bob"
         @test roundtrip_without_token.password == ""
         @test roundtrip_without_token.token === nothing
-        @test_throws BEVE.BeveError deser_beve(Credentials, beve_without_token; error_on_missing_fields = true)
+        @test_throws BeveFormat.BeveError deser_beve(Credentials, beve_without_token; error_on_missing_fields = true)
     end
 
     @testset "Multiple Field Skipping" begin
@@ -406,7 +406,7 @@ using StructUtils
             created_at::String
         end
 
-        BEVE.@skip Secrets api_key private_notes
+        BeveFormat.@skip Secrets api_key private_notes
 
         secrets = Secrets(101, "API-XYZ", "internal", "2024-01-01")
         parsed_secrets = from_beve(to_beve(secrets))
@@ -424,7 +424,7 @@ using StructUtils
         @test reconstructed_secrets.api_key == ""
         @test reconstructed_secrets.private_notes == ""
         @test reconstructed_secrets.created_at == "2024-01-01"
-        @test_throws BEVE.BeveError deser_beve(Secrets, beve_secrets; error_on_missing_fields = true)
+        @test_throws BeveFormat.BeveError deser_beve(Secrets, beve_secrets; error_on_missing_fields = true)
     end
     
     @testset "Complex Nested Structs" begin
@@ -979,7 +979,7 @@ using StructUtils
         catch e
             err = e
         end
-        @test err isa BEVE.BeveError
+        @test err isa BeveFormat.BeveError
         @test err.msg == "Missing field 'age' for type ErrPerson"
 
         # Test nested struct error - identifies the nested type
@@ -999,7 +999,7 @@ using StructUtils
         catch e
             err_nested = e
         end
-        @test err_nested isa BEVE.BeveError
+        @test err_nested isa BeveFormat.BeveError
         @test err_nested.msg == "Missing field 'longitude' for type ErrGeoCoordinates"
 
         # Test byte position in parsing errors - invalid header
@@ -1010,7 +1010,7 @@ using StructUtils
         catch e
             parse_err = e
         end
-        @test parse_err isa BEVE.BeveError
+        @test parse_err isa BeveFormat.BeveError
         @test parse_err.msg == "Unsupported header: unknown type (0xff) at byte 1"
 
         # Test truncated data error includes position
@@ -1021,7 +1021,7 @@ using StructUtils
         catch e
             trunc_err = e
         end
-        @test trunc_err isa BEVE.BeveError
+        @test trunc_err isa BeveFormat.BeveError
         @test occursin("at byte 1", trunc_err.msg)  # Verify error includes byte position
 
         # Test error in array element - identifies the element type
@@ -1049,7 +1049,7 @@ using StructUtils
         catch e
             err_team = e
         end
-        @test err_team isa BEVE.BeveError
+        @test err_team isa BeveFormat.BeveError
         @test err_team.msg == "Missing field 'address' for type ErrPerson"
 
         # Test deeply nested error - identifies the innermost type
@@ -1076,7 +1076,7 @@ using StructUtils
         catch e
             err_company = e
         end
-        @test err_company isa BEVE.BeveError
+        @test err_company isa BeveFormat.BeveError
         @test err_company.msg == "Missing field 'longitude' for type ErrGeoCoordinates"
     end
 
@@ -1385,7 +1385,7 @@ using StructUtils
         # Missing field should error with error_on_missing_fields
         incomplete_pet = Dict("pet" => Dict("breed" => "Labrador"))  # missing "name"
         incomplete_bytes = to_beve(incomplete_pet)
-        @test_throws BEVE.BeveError deser_beve(StrictPetOwner, incomplete_bytes; error_on_missing_fields = true)
+        @test_throws BeveFormat.BeveError deser_beve(StrictPetOwner, incomplete_bytes; error_on_missing_fields = true)
 
         # Test 8: Deep nesting with multiple choosetype levels
         abstract type Level1 end
@@ -1769,7 +1769,7 @@ using StructUtils
 
         # Without @choosetype, abstract type cannot be constructed
         fb_data = Dict("item" => Dict("a" => 1))
-        @test_throws BEVE.BeveError deser_beve(FallbackHolder, to_beve(fb_data))
+        @test_throws BeveFormat.BeveError deser_beve(FallbackHolder, to_beve(fb_data))
     end
 
     @testset "Choosetype Error Handling" begin
@@ -1790,7 +1790,7 @@ using StructUtils
         catch e
             err1 = e
         end
-        @test err1 isa BEVE.BeveError
+        @test err1 isa BeveFormat.BeveError
         @test occursin("Cannot deserialize to abstract type", err1.msg)
         @test occursin("NoChooseAnimal", err1.msg)
 
@@ -1807,7 +1807,7 @@ using StructUtils
         catch e
             err2 = e
         end
-        @test err2 isa BEVE.BeveError
+        @test err2 isa BeveFormat.BeveError
         @test occursin("Cannot deserialize to abstract type", err2.msg)
 
         # Test 3: Vector of abstract type without @choosetype throws BeveError
@@ -1827,7 +1827,7 @@ using StructUtils
         catch e
             err6 = e
         end
-        @test err6 isa BEVE.BeveError
+        @test err6 isa BeveFormat.BeveError
         @test occursin("Cannot deserialize to abstract type", err6.msg)
 
         # Test 4: Valid @choosetype still works (sanity check)
@@ -1996,14 +1996,14 @@ using StructUtils
             scaled_values::Vector{Float64} = Float64[]
         end
 
-        BEVE.@skip ScaledData scaled_values
+        BeveFormat.@skip ScaledData scaled_values
 
         # Override makestruct to auto-populate scaled_values after construction
-        function StructUtils.makestruct(style::BEVE.BeveStyle, ::Type{ScaledData}, source)
+        function StructUtils.makestruct(style::BeveFormat.BeveStyle, ::Type{ScaledData}, source)
             T = ScaledData
             vals = StructUtils.mem(fieldcount(T))
             fsyms = StructUtils.fieldnamesymbols(T)
-            st = BEVE.fill_struct_fields!(style, T, vals, source)
+            st = BeveFormat.fill_struct_fields!(style, T, vals, source)
             obj = T(; (fsyms[i] => vals[i] for i in 1:fieldcount(T) if isassigned(vals, i))...)
             # Post-construction: compute derived field
             if !isempty(obj.raw_values)
@@ -2145,7 +2145,7 @@ using StructUtils
         @test_throws Exception deser_beve(KWConfig, to_beve(no_label))
 
         # error_on_missing catches partial data
-        @test_throws BEVE.BeveError deser_beve(KWConfig, to_beve(partial_data);
+        @test_throws BeveFormat.BeveError deser_beve(KWConfig, to_beve(partial_data);
                                                 error_on_missing_fields = true)
     end
 
@@ -2162,7 +2162,7 @@ using StructUtils
 
         NT = NamedTuple{(:a, :b), Tuple{Int, Int}}
         @test deser_beve(NT, to_beve(Dict("a" => 1, "b" => 2))) == (a = 1, b = 2)
-        @test_throws BEVE.BeveError deser_beve(NT, to_beve(Dict("a" => 1)))
+        @test_throws BeveFormat.BeveError deser_beve(NT, to_beve(Dict("a" => 1)))
     end
 
     @testset "StructUtils @defaults" begin

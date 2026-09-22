@@ -1,13 +1,13 @@
 # Test which method is being called for complex numbers
 push!(LOAD_PATH, "../src")
-using BEVE
+using BeveFormat
 
 # Check available methods for beve_value!
 println("Methods for ComplexF32:")
-methods(BEVE.beve_value!, (BEVE.BeveSerializer, ComplexF32))
+methods(BeveFormat.beve_value!, (BeveFormat.BeveSerializer, ComplexF32))
 
 println("\nMethods for Complex{Float32}:")
-methods(BEVE.beve_value!, (BEVE.BeveSerializer, Complex{Float32}))
+methods(BeveFormat.beve_value!, (BeveFormat.BeveSerializer, Complex{Float32}))
 
 # Check if Complex has fieldnames
 println("\nFieldnames of ComplexF32: ", fieldnames(ComplexF32))

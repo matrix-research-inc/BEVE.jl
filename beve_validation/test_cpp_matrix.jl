@@ -1,6 +1,6 @@
 using Pkg
 Pkg.activate("..")
-using BEVE
+using BeveFormat
 
 println("Testing C++ generated matrix")
 println("===========================\n")

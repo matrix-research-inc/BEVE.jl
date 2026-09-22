@@ -1,6 +1,6 @@
 using Pkg
 Pkg.activate("..")
-using BEVE
+using BeveFormat
 
 println("Testing BEVE spec interpretation differences")
 println("==========================================\n")

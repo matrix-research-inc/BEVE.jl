@@ -1,13 +1,13 @@
 module HTTPExt
 
-using BEVE
+using BeveFormat
 using HTTP
 
 # Import the functions we need from BEVE
-using BEVE: to_beve, from_beve, deser_beve
+using BeveFormat: to_beve, from_beve, deser_beve
 
 # Import the stubs we'll extend
-import BEVE: register_object, unregister_object, start_server, BeveHttpClient
+import BeveFormat: register_object, unregister_object, start_server, BeveHttpClient
 
 # Define the actual BeveHttpClient struct
 struct BeveHttpClientImpl
@@ -20,7 +20,7 @@ struct BeveHttpClientImpl
         
         # Set default headers
         default_headers = Dict(
-            "User-Agent" => "BEVE.jl HTTP Client",
+            "User-Agent" => "BeveFormat.jl HTTP Client",
             "Accept" => "application/x-beve"
         )
         
@@ -31,7 +31,7 @@ struct BeveHttpClientImpl
 end
 
 # Constructor function that users will call
-BEVE.BeveHttpClient(base_url::String; headers::Dict{String, String} = Dict{String, String}()) = BeveHttpClientImpl(base_url; headers=headers)
+BeveFormat.BeveHttpClient(base_url::String; headers::Dict{String, String} = Dict{String, String}()) = BeveHttpClientImpl(base_url; headers=headers)
 
 # Registry to store registered struct instances and their paths
 struct BeveHttpRegistry
@@ -46,7 +46,7 @@ end
 const GLOBAL_REGISTRY = BeveHttpRegistry()
 
 """
-    BEVE.register_object(path::String, obj::T) where T
+    BeveFormat.register_object(path::String, obj::T) where T
 
 Register a struct instance under a specific HTTP path.
 
@@ -62,7 +62,7 @@ company = Company("ACME Corp", employees)
 register_object("/api/company", company)
 ```
 """
-function BEVE.register_object(path::String, obj::T) where T
+function BeveFormat.register_object(path::String, obj::T) where T
     # Normalize path to ensure it starts with /
     normalized_path = startswith(path, "/") ? path : "/" * path
     
@@ -73,11 +73,11 @@ function BEVE.register_object(path::String, obj::T) where T
 end
 
 """
-    BEVE.unregister_object(path::String)
+    BeveFormat.unregister_object(path::String)
 
 Unregister an object from the given path.
 """
-function BEVE.unregister_object(path::String)
+function BeveFormat.unregister_object(path::String)
     normalized_path = startswith(path, "/") ? path : "/" * path
     
     delete!(GLOBAL_REGISTRY.registered_objects, normalized_path)
@@ -375,7 +375,7 @@ function request_handler(req::HTTP.Request)::HTTP.Response
 end
 
 """
-    BEVE.start_server(host::String = "127.0.0.1", port::Int = 8080)
+    BeveFormat.start_server(host::String = "127.0.0.1", port::Int = 8080)
 
 Start a BEVE HTTP server.
 
@@ -400,7 +400,7 @@ server = start_server("127.0.0.1", 8080)
 # GET /api/company/employees/0 -> first employee
 ```
 """
-function BEVE.start_server(host::String = "127.0.0.1", port::Int = 8080)
+function BeveFormat.start_server(host::String = "127.0.0.1", port::Int = 8080)
     @info "Starting BEVE HTTP server on $host:$port"
     
     server = HTTP.serve(request_handler, host, port)

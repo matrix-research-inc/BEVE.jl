@@ -267,7 +267,7 @@ end
 
 @inline function _make_from_value(style::BeveStyle, ::Type{T}, val, tags) where {T}
     # Preserve the buffer path's direct passthrough of a preserved matrix.
-    if val isa BEVE.BeveMatrix && T <: BEVE.BeveMatrix
+    if val isa BeveFormat.BeveMatrix && T <: BeveFormat.BeveMatrix
         return val
     end
     result, _ = isempty(tags) ? StructUtils.make(style, T, val) :

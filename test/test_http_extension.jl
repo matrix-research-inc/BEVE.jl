@@ -2,7 +2,7 @@
 # These tests require HTTP.jl to be loaded
 
 using Test
-using BEVE
+using BeveFormat
 using HTTP
 
 @testset "HTTP Extension Tests" begin
@@ -21,7 +21,7 @@ using HTTP
     
     # Access the extension module for internal function testing
     # The extension is loaded as a submodule when HTTP is available
-    HTTPExt = Base.get_extension(BEVE, :HTTPExt)
+    HTTPExt = Base.get_extension(BeveFormat, :HTTPExt)
     
     @testset "JSON Pointer Parsing" begin
         @test HTTPExt.parse_json_pointer("/") == String[]
@@ -151,7 +151,7 @@ using HTTP
         @test isa(client, HTTPExt.BeveHttpClientImpl)
         @test client.base_url == "http://localhost:8080"
         @test haskey(client.headers, "User-Agent")
-        @test client.headers["User-Agent"] == "BEVE.jl HTTP Client"
+        @test client.headers["User-Agent"] == "BeveFormat.jl HTTP Client"
         
         # Test with custom headers
         custom_headers = Dict("Authorization" => "Bearer token123")

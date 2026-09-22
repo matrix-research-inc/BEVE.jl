@@ -1,6 +1,6 @@
 using Pkg
 Pkg.activate("..")
-using BEVE
+using BeveFormat
 
 println("Testing matrix format details")
 println("============================\n")

@@ -318,7 +318,7 @@ function parse_type_tag(deser::BeveDeserializer)
     value = parse_value(deser)
     
     # Return as a BeveTypeTag struct
-    return BEVE.BeveTypeTag(type_index, value)
+    return BeveFormat.BeveTypeTag(type_index, value)
 end
 
 const NUMERIC_MATRIX_HEADERS = UInt8[
@@ -334,7 +334,7 @@ function parse_matrix(deser::BeveDeserializer)
     # Layout: HEADER | MATRIX HEADER | EXTENTS | VALUE
     
     matrix_header = read_byte!(deser)
-    layout = matrix_header == 0 ? BEVE.LayoutRight : BEVE.LayoutLeft
+    layout = matrix_header == 0 ? BeveFormat.LayoutRight : BeveFormat.LayoutLeft
     
     extents_header = read_byte!(deser)
     extents = parse_matrix_extents(deser, extents_header)
@@ -347,7 +347,7 @@ function parse_matrix(deser::BeveDeserializer)
 
     if deser.preserve_matrices
         data = parse_matrix_value(deser, value_header)
-        return BEVE.BeveMatrix(layout, extents, data)
+        return BeveFormat.BeveMatrix(layout, extents, data)
     end
     
     if length(extents) == 2
@@ -362,7 +362,7 @@ function parse_matrix(deser::BeveDeserializer)
         end
     else
         data = parse_matrix_value(deser, value_header)
-        return BEVE.BeveMatrix(layout, extents, data)
+        return BeveFormat.BeveMatrix(layout, extents, data)
     end
 end
 
@@ -399,7 +399,7 @@ function parse_numeric_matrix(deser::BeveDeserializer, layout::MatrixLayout, row
     T = matrix_element_type(header)
     T === nothing && throw(BeveError("Unsupported numeric matrix type: $(header_name(header)) at byte $(deser.pos)"))
 
-    if layout == BEVE.LayoutLeft
+    if layout == BeveFormat.LayoutLeft
         matrix = Matrix{T}(undef, rows, cols)
         if count > 0
             GC.@preserve matrix begin
@@ -411,7 +411,7 @@ function parse_numeric_matrix(deser::BeveDeserializer, layout::MatrixLayout, row
     else
         buffer = Vector{T}(undef, count)
         read_array_data!(deser, buffer)
-        return matrix_from_beve(BEVE.LayoutRight, rows, cols, buffer)
+        return matrix_from_beve(BeveFormat.LayoutRight, rows, cols, buffer)
     end
 end
 
@@ -508,7 +508,7 @@ function matrix_from_beve(layout::MatrixLayout, rows::Int, cols::Int, data::Vect
         throw(BeveError("Matrix data length $(length(data)) does not match product of extents $total"))
     end
 
-    if layout == BEVE.LayoutLeft
+    if layout == BeveFormat.LayoutLeft
         matrix = Matrix{T}(undef, rows, cols)
         if total > 0
             copyto!(matrix, 1, data, 1, total)
@@ -736,7 +736,7 @@ end
 BeveStyle(; error_on_missing::Bool = false) = BeveStyle(error_on_missing)
 
 """
-    BEVE.fill_struct_fields!(style::BeveStyle, ::Type{T}, vals, source) -> state
+    BeveFormat.fill_struct_fields!(style::BeveStyle, ::Type{T}, vals, source) -> state
 
 Match `source` against the fields of `T`, assigning into `vals` (a buffer from
 `StructUtils.mem(fieldcount(T))`; an unassigned slot means the field was absent
@@ -868,7 +868,7 @@ function StructUtils.make(style::BeveStyle, ::Type{T}, source::AbstractMatrix) w
 end
 
 # BeveMatrix → Matrix conversion (for preserve_matrices=true data)
-function StructUtils.make(style::BeveStyle, ::Type{T}, source::BEVE.BeveMatrix) where {T<:AbstractMatrix}
+function StructUtils.make(style::BeveStyle, ::Type{T}, source::BeveFormat.BeveMatrix) where {T<:AbstractMatrix}
     matrix = matrix_from_beve(source.layout, source.extents, source.data)
     return convert(T, matrix), StructUtils.defaultstate(style)
 end
@@ -908,7 +908,7 @@ Uses StructUtils for all struct construction, supporting hooks like
 Leave `error_on_missing_fields` at its default (`false`) to allow reconstruction
 of structs even when some serialized fields are missing. This is useful when
 fields were intentionally skipped during serialization (for example via
-`BEVE.@skip`) and the target type can still be constructed via keyword defaults.
+`BeveFormat.@skip`) and the target type can still be constructed via keyword defaults.
 Set it to `true` to enforce strict checking and throw a `BeveError` whenever a
 field is missing.
 
@@ -939,7 +939,7 @@ function deser_beve(::Type{T}, data::Vector{UInt8};
     # as a struct field and with the streaming path.
     if T <: Dict && parsed isa T
         return parsed
-    elseif parsed isa BEVE.BeveMatrix && T <: BEVE.BeveMatrix
+    elseif parsed isa BeveFormat.BeveMatrix && T <: BeveFormat.BeveMatrix
         return parsed
     elseif parsed isa Dict && !(parsed isa Dict{String, Any}) && !(T <: Dict)
         throw(BeveError("Cannot convert integer-keyed dictionary to type $T"))

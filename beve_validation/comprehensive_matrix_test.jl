@@ -1,6 +1,6 @@
 using Pkg
 Pkg.activate("..")
-using BEVE
+using BeveFormat
 
 raw_from_beve(data) = from_beve(data; preserve_matrices = true)
 

@@ -1,7 +1,7 @@
 # BEVE HTTP Demo
 # This file demonstrates how to use BEVE with HTTP functionality
 
-using BEVE
+using BeveFormat
 using HTTP
 
 # Define example structs

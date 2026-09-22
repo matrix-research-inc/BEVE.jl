@@ -1,10 +1,10 @@
 module CodecZstdExt
 
-using BEVE
+using BeveFormat
 using CodecZstd
 using CodecZstd: ZstdCompressorStream, ZstdDecompressorStream
-using BEVE: to_beve, to_beve!, from_beve, deser_beve, BeveSerializer, beve_value!
-import BEVE: to_beve_zstd, from_beve_zstd, write_beve_zstd_file, read_beve_zstd_file,
+using BeveFormat: to_beve, to_beve!, from_beve, deser_beve, BeveSerializer, beve_value!
+import BeveFormat: to_beve_zstd, from_beve_zstd, write_beve_zstd_file, read_beve_zstd_file,
               deser_beve_zstd, deser_beve_zstd_file
 
 const DEFAULT_ZSTD_LEVEL = 3

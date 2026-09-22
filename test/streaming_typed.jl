@@ -199,7 +199,7 @@ end
 
         # Integer-keyed map forced into a non-dict type is rejected, as in the
         # buffer path, decided from the header alone.
-        @test_throws BEVE.BeveError deser_beve(StrmInner, IOBuffer(to_beve(d)))
+        @test_throws BeveFormat.BeveError deser_beve(StrmInner, IOBuffer(to_beve(d)))
     end
 
     @testset "@kwdef default for a missing field over IO" begin
@@ -211,7 +211,7 @@ end
 
     @testset "strict missing-field error over IO" begin
         partial = Dict("a" => 1)   # StrmInner also needs "b"
-        @test_throws BEVE.BeveError deser_beve(
+        @test_throws BeveFormat.BeveError deser_beve(
             StrmInner, IOBuffer(to_beve(partial)); error_on_missing_fields = true,
         )
     end
@@ -271,7 +271,7 @@ let
                 Dict("q" => 17),
                 123,
             )
-            compressed = BEVE.to_beve_zstd(sample)
+            compressed = BeveFormat.to_beve_zstd(sample)
 
             from_buffer = deser_beve_zstd(StrmOuter, compressed)
             from_io = deser_beve_zstd(StrmOuter, IOBuffer(compressed))

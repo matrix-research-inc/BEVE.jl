@@ -1,6 +1,6 @@
 using Pkg
 Pkg.activate("..")
-using BEVE
+using BeveFormat
 
 println("Testing BEVE Type Tags (Variants)")
 println("=================================")
@@ -78,7 +78,7 @@ result5 = from_beve(data5)
 println("  Outer: index=$(result5.index)")
 println("  Inner: index=$(result5.value.index), value=\"$(result5.value.value)\"")
 @assert result5.index == 20
-@assert result5.value isa BEVE.BeveTypeTag
+@assert result5.value isa BeveFormat.BeveTypeTag
 @assert result5.value.index == 10
 @assert result5.value.value == "Inner value"
 println("  ✓ Nested type tags test passed")

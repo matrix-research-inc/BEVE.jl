@@ -1,21 +1,14 @@
-# BEVE.jl
+# BeveFormat.jl
 
 BEVE serialization and deserialization library for Julia. BEVE (Binary Efficient Versatile Encoding) provides fast and compact serialization of Julia data structures including primitives, collections, and custom structs.
 
 ## Installation
 
-Add BEVE.jl to your Julia project:
+BeveFormat.jl implements the [BEVE](https://github.com/beve-org/beve) binary format. Add it to your Julia project:
 
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/beve-org/BEVE.jl.git")
-```
-
-Or in your `Project.toml`:
-
-```toml
-[deps]
-BEVE = "3b80d964-188b-4b7e-ad00-66244565238b"
+Pkg.add("BeveFormat")
 ```
 
 ## Usage
@@ -23,7 +16,7 @@ BEVE = "3b80d964-188b-4b7e-ad00-66244565238b"
 Import the library:
 
 ```julia
-using BEVE
+using BeveFormat
 ```
 
 ## Basic Usage
@@ -91,7 +84,7 @@ value delivered in bursts decodes correctly.
 
 ### Supported Types
 
-BEVE.jl supports all basic Julia types:
+BeveFormat.jl supports all basic Julia types:
 
 ```julia
 # Basic types
@@ -142,7 +135,7 @@ Serializing as strings rather than integers ensures compatibility even if enum v
 
 ### Working with Custom Structs
 
-BEVE.jl can serialize and deserialize custom Julia structs:
+BeveFormat.jl can serialize and deserialize custom Julia structs:
 
 ```julia
 # Define a struct
@@ -179,10 +172,10 @@ struct Credentials
 end
 
 # Skip password and session_id for every serialization
-BEVE.@skip Credentials password session_id
+BeveFormat.@skip Credentials password session_id
 
 # Skip token only when it is `nothing`
-BEVE.skip(::Type{Credentials}, ::Val{:token}, value) = value === nothing
+BeveFormat.skip(::Type{Credentials}, ::Val{:token}, value) = value === nothing
 
 data = Credentials("alice", "secret", nothing, "sess-42")
 parsed = from_beve(to_beve(data))
@@ -200,7 +193,7 @@ By default `deser_beve` allows reconstruction even when fields were skipped in t
 
 ### Complex Nested Structures
 
-BEVE.jl handles deeply nested data structures:
+BeveFormat.jl handles deeply nested data structures:
 
 ```julia
 struct Address
@@ -280,7 +273,7 @@ roundtrip = deser_beve(Grid, to_beve(grid))
 
 ### Optional and Union Fields
 
-BEVE.jl supports optional fields and Union types:
+BeveFormat.jl supports optional fields and Union types:
 
 ```julia
 struct OptionalData
@@ -306,7 +299,7 @@ For abstract types or complex Union types, use `StructUtils.@choosetype` to cont
 
 ```julia
 using StructUtils
-using BEVE
+using BeveFormat
 
 abstract type Message end
 
@@ -378,7 +371,7 @@ julia --project=. -e "import Pkg; Pkg.test()"
 
 ## Optional Zstandard Compression
 
-BEVE ships an optional extension that wraps [CodecZstd.jl](https://github.com/JuliaIO/CodecZstd.jl) so you can read and write `.beve.zst` files. The helpers are no-ops unless `CodecZstd` is available; install it explicitly when you want compressed output:
+BeveFormat ships an optional extension that wraps [CodecZstd.jl](https://github.com/JuliaIO/CodecZstd.jl) so you can read and write `.beve.zst` files. The helpers are no-ops unless `CodecZstd` is available; install it explicitly when you want compressed output:
 
 ```julia
 using Pkg
@@ -398,7 +391,7 @@ The `to_beve_zstd` helper reuses any `IOBuffer` you pass via `buffer` to avoid r
 Example:
 
 ```julia
-using BEVE
+using BeveFormat
 using CodecZstd  # activates the extension
 
 sample = Dict("message" => "hello")
@@ -420,14 +413,14 @@ write_beve_zstd_file("person.beve.zst", person)
 
 ## Optional HTTP Support
 
-BEVE.jl includes optional HTTP server and client functionality through a package extension. HTTP.jl is now an optional dependency - you only need it if you want to use HTTP features.
+BeveFormat.jl includes optional HTTP server and client functionality through a package extension. HTTP.jl is now an optional dependency - you only need it if you want to use HTTP features.
 
 ### Enabling HTTP Features
 
 HTTP functionality is provided through a Julia package extension (available since Julia 1.9). To use HTTP features, simply load HTTP.jl:
 
 ```julia
-using BEVE
+using BeveFormat
 using HTTP  # This automatically loads the HTTP extension
 
 # Now HTTP functions are available
@@ -440,7 +433,7 @@ Without HTTP.jl, core BEVE serialization works normally, but HTTP functions will
 Once HTTP.jl is loaded, you can register struct instances at HTTP paths and serve them:
 
 ```julia
-using BEVE
+using BeveFormat
 using HTTP  # Required for HTTP functionality
 
 # Define your structs
@@ -484,7 +477,7 @@ The server supports JSON pointer syntax for accessing nested data:
 Make requests to BEVE HTTP servers:
 
 ```julia
-using BEVE
+using BeveFormat
 using HTTP  # Required for HTTP functionality
 
 # Create client

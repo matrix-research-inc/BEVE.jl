@@ -1,5 +1,5 @@
 [deps]
-BEVE = "3b80d964-188b-4b7e-ad00-66244565238b"
+BeveFormat = "7708a389-c994-43cc-8329-c76d993c33c0"
 CodecZstd = "6b39b394-51ab-5f42-8807-6242bab2b4c2"
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
@@ -7,4 +7,4 @@ StructUtils = "ec057cc2-7a8d-4b58-b3b3-92acb9f63b42"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [extras]
-BEVE = "3b80d964-188b-4b7e-ad00-66244565238b"
+BeveFormat = "7708a389-c994-43cc-8329-c76d993c33c0"

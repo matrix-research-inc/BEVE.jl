@@ -1,10 +1,10 @@
 # Quick test to debug complex number issue
 using Pkg
 Pkg.activate("..")
-using BEVE
+using BeveFormat
 
 # Test if COMPLEX constant is available
-println("COMPLEX constant: ", BEVE.COMPLEX)
+println("COMPLEX constant: ", BeveFormat.COMPLEX)
 
 # Test complex number serialization
 cf = ComplexF32(1.5, 2.5)

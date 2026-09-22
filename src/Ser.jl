@@ -409,26 +409,26 @@ function beve_value!(ser::BeveSerializer, val::AbstractMatrix{T}) where T
         total = length(val)
         GC.@preserve val begin
             data = unsafe_wrap(Vector{T}, pointer(val), total; own=false)
-            beve_value!(ser, BEVE.BeveMatrix(BEVE.LayoutLeft, extents, data))
+            beve_value!(ser, BeveFormat.BeveMatrix(BeveFormat.LayoutLeft, extents, data))
         end
         return
     end
 
     layout, data = collect_matrix_data_for_serialization(val, rows, cols)
-    beve_value!(ser, BEVE.BeveMatrix(layout, extents, data))
+    beve_value!(ser, BeveFormat.BeveMatrix(layout, extents, data))
 end
 
 @inline function collect_matrix_data_for_serialization(val::AbstractMatrix{T}, rows::Int, cols::Int) where T
     if val isa StridedMatrix{T}
         s1, s2 = strides(val)
         if s1 == 1 && s2 == rows
-            return BEVE.LayoutLeft, copy_matrix_column_major(val, rows, cols)
+            return BeveFormat.LayoutLeft, copy_matrix_column_major(val, rows, cols)
         elseif s2 == 1 && s1 == cols
-            return BEVE.LayoutRight, copy_matrix_row_major(val, rows, cols)
+            return BeveFormat.LayoutRight, copy_matrix_row_major(val, rows, cols)
         end
     end
 
-    return BEVE.LayoutLeft, copy_matrix_column_major(val, rows, cols)
+    return BeveFormat.LayoutLeft, copy_matrix_column_major(val, rows, cols)
 end
 
 @inline function copy_matrix_column_major(val::AbstractMatrix{T}, rows::Int, cols::Int) where T
@@ -620,13 +620,13 @@ function beve_value!(ser::BeveSerializer, val::Vector{ComplexF64})
 end
 
 # Handle BEVE matrices
-function beve_value!(ser::BeveSerializer, val::BEVE.BeveMatrix)
+function beve_value!(ser::BeveSerializer, val::BeveFormat.BeveMatrix)
     write(ser.io, MATRIX)
     
     # Write matrix header byte per BEVE spec
     # The first bit denotes the data layout: 0 = row-major, 1 = column-major
     # Since only bit 0 is used, byte values are 0x00 or 0x01
-    matrix_header = UInt8(val.layout == BEVE.LayoutLeft ? 1 : 0)
+    matrix_header = UInt8(val.layout == BeveFormat.LayoutLeft ? 1 : 0)
     write(ser.io, matrix_header)
     
     # Write extents as a typed array - optimized

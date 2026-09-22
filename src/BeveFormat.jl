@@ -1,11 +1,11 @@
-module BEVE
+module BeveFormat
 
 function deser end
 function parse_value end
 
 # Type for representing BEVE type tags (variants)
 # Note: BeveTypeTag is only used for READING data with variant tags from external sources.
-# BEVE.jl does NOT write variant tags; instead, use StructUtils.@choosetype for Union handling.
+# BeveFormat.jl does NOT write variant tags; instead, use StructUtils.@choosetype for Union handling.
 struct BeveTypeTag
     index::Int
     value::Any

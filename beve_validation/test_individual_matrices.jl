@@ -1,6 +1,6 @@
 using Pkg
 Pkg.activate("..")
-using BEVE
+using BeveFormat
 
 println("Creating individual matrix files for C++ testing")
 println("==============================================\n")

@@ -1,8 +1,8 @@
 module StaticArraysCoreExt
 
-using BEVE
-using BEVE: BeveSerializer, BeveStyle
-import BEVE: beve_value!
+using BeveFormat
+using BeveFormat: BeveSerializer, BeveStyle
+import BeveFormat: beve_value!
 using StaticArraysCore: StaticArray
 using StructUtils
 

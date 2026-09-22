@@ -1,6 +1,6 @@
 using Pkg
 Pkg.activate("..")
-using BEVE
+using BeveFormat
 
 println("Testing Glaze-compatible matrix format")
 println("=====================================\n")
@@ -20,18 +20,18 @@ println()
 
 # Try to parse the Glaze-generated data
 io = IOBuffer(glaze_bytes)
-deser = BEVE.BeveDeserializer(io)
+deser = BeveFormat.BeveDeserializer(io)
 
 # Read matrix header
-header = BEVE.read_byte!(deser)
+header = BeveFormat.read_byte!(deser)
 println("Matrix header: 0x$(string(header, base=16))")
 
 # Read layout
-layout = BEVE.read_byte!(deser)
+layout = BeveFormat.read_byte!(deser)
 println("Layout: $layout")
 
 # Read next byte (should be array header)
-array_header = BEVE.read_byte!(deser)
+array_header = BeveFormat.read_byte!(deser)
 println("Array header: 0x$(string(array_header, base=16))")
 
 # Remaining bytes
@@ -42,7 +42,7 @@ println()
 # Let's see what 0x6c means
 println("Array header 0x6c analysis:")
 println("  Binary: $(bitstring(UInt8(0x6c)))")
-println("  As I64_ARRAY: ", BEVE.I64_ARRAY == 0x6c)
+println("  As I64_ARRAY: ", BeveFormat.I64_ARRAY == 0x6c)
 
 # So Glaze uses I64_ARRAY for extents!
 # Let's modify our implementation to handle this special case for 2D matrices
