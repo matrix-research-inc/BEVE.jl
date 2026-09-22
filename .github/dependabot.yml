@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns: ['*']
+
+  # Raises [compat] bounds in Project.toml and test/Project.toml when new
+  # dependency releases fall outside them.
+  - package-ecosystem: julia
+    directories:
+      - /
+      - /test
+    schedule:
+      interval: weekly
+    groups:
+      julia:
+        patterns: ['*']
