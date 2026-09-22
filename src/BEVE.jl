@@ -1,0 +1,74 @@
+module BEVE
+
+function deser end
+function parse_value end
+
+# Type for representing BEVE type tags (variants)
+# Note: BeveTypeTag is only used for READING data with variant tags from external sources.
+# BEVE.jl does NOT write variant tags; instead, use StructUtils.@choosetype for Union handling.
+struct BeveTypeTag
+    index::Int
+    value::Any
+end
+
+# Enum for matrix layout
+@enum MatrixLayout begin
+    LayoutRight = 0  # row-major
+    LayoutLeft = 1   # column-major
+end
+
+# Type for representing BEVE matrices
+struct BeveMatrix{T}
+    layout::MatrixLayout
+    extents::Vector{Int}
+    data::Vector{T}
+    
+    function BeveMatrix{T}(layout::MatrixLayout, extents::Vector{Int}, data::Vector{T}) where T
+        # Validate that the product of extents matches data length
+        expected_size = prod(extents)
+        if length(data) != expected_size
+            throw(ArgumentError("Matrix data length $(length(data)) does not match product of extents $(expected_size)"))
+        end
+        # Validate no zero dimensions
+        if any(==(0), extents)
+            throw(ArgumentError("Matrix dimensions cannot be zero"))
+        end
+        new{T}(layout, extents, data)
+    end
+end
+
+# Convenience constructor
+BeveMatrix(layout::MatrixLayout, extents::Vector{Int}, data::Vector{T}) where T = BeveMatrix{T}(layout, extents, data)
+
+# Exports for serialization
+export to_beve, to_beve!, write_beve_file, to_beve_zstd, write_beve_zstd_file,
+       BeveTypeTag, BeveMatrix, MatrixLayout, LayoutRight, LayoutLeft, @skip
+
+# Exports for deserialization
+export from_beve, read_beve_file, from_beve_zstd, read_beve_zstd_file,
+       deser_beve, deser_beve_file, deser_beve_zstd, deser_beve_zstd_file,
+       BeveStyle
+
+include("Headers.jl")
+include("Ser.jl")
+include("De.jl")
+include("StreamDe.jl")
+
+# HTTP functionality stubs - these will be replaced by the extension when HTTP.jl is loaded
+function register_object end
+function unregister_object end
+function start_server end
+function BeveHttpClient end  # Function stub instead of struct
+
+# CodecZstd helper stubs - implemented when CodecZstd.jl is available
+function to_beve_zstd end
+function from_beve_zstd end
+function write_beve_zstd_file end
+function read_beve_zstd_file end
+function deser_beve_zstd end
+function deser_beve_zstd_file end
+
+# Export the HTTP functions (they'll only work when HTTP.jl is loaded)
+export register_object, unregister_object, start_server, BeveHttpClient
+
+end

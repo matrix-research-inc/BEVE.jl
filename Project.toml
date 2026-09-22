@@ -1,0 +1,32 @@
+name = "BEVE"
+uuid = "3b80d964-188b-4b7e-ad00-66244565238b"
+authors = ["Stephen Berry <stephenberry.developer@gmail.com>"]
+version = "2.7.2"
+
+[deps]
+StructUtils = "ec057cc2-7a8d-4b58-b3b3-92acb9f63b42"
+
+[weakdeps]
+CodecZstd = "6b39b394-51ab-5f42-8807-6242bab2b4c2"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+StaticArraysCore = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
+
+[extensions]
+CodecZstdExt = "CodecZstd"
+HTTPExt = "HTTP"
+StaticArraysCoreExt = "StaticArraysCore"
+
+[compat]
+CodecZstd = "0.8"
+HTTP = "1"
+StaticArraysCore = "1"
+StructUtils = "2.8.3"
+julia = "1.9"
+
+[extras]
+CodecZstd = "6b39b394-51ab-5f42-8807-6242bab2b4c2"
+StructUtils = "ec057cc2-7a8d-4b58-b3b3-92acb9f63b42"
+Test = "8dfed614-5729-5b0f-aeef-512c0d43c1eb"
+
+[targets]
+test = ["Test", "CodecZstd", "StructUtils"]
