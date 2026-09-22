@@ -8,3 +8,10 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [extras]
 BEVE = "3b80d964-188b-4b7e-ad00-66244565238b"
+
+[compat]
+CodecZstd = "0.8.7"
+HTTP = "2.7.1"
+StaticArrays = "1.9.22"
+StructUtils = "2.9.2"
+Test = "< 0.0.1, 1"
